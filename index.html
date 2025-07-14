@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Battery Warranty Checker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f2f2f2;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h2 {
+      color: #333;
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin: 15px 0 5px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .output {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 6px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    .output p {
+      margin: 10px 0;
+    }
+
+    .developer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔋 Battery Warranty Checker</h2>
+  
+  <label>Battery Code डालें (जैसे: 080924A17)</label>
+  <input type="text" id="batteryCode" placeholder="Battery Code यहां डालें">
+  <button onclick="checkWarranty()">Check Warranty</button>
+
+  <div class="output" id="outputBox" style="display: none;">
+    <p><strong>Battery Manufacturing Date:</strong> <span id="manuDate"></span></p>
+    <p><strong>Battery Age:</strong> <span id="batteryAge"></span></p>
+    <p><strong>Invoice बनानी की आखिरी तारीख:</strong> <span id="invoiceLastDate"></span></p>
+  </div>
+
+  <div class="developer">👨‍💻 Developer: <strong>JITENDRA BADIYASAR</strong></div>
+
+  <script>
+    function formatDate(dateObj) {
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const yyyy = dateObj.getFullYear();
+      return `${dd}-${mm}-${yyyy}`;
+    }
+
+    function calculateAge(fromDate, toDate) {
+      let months = (toDate.getFullYear() - fromDate.getFullYear()) * 12;
+      months -= fromDate.getMonth();
+      months += toDate.getMonth();
+
+      const totalDays = Math.floor((toDate - fromDate) / (1000 * 60 * 60 * 24));
+
+      const tempDate = new Date(fromDate);
+      tempDate.setMonth(tempDate.getMonth() + months);
+      let days = Math.floor((toDate - tempDate) / (1000 * 60 * 60 * 24));
+
+      if (days < 0) {
+        months--;
+        tempDate.setMonth(tempDate.getMonth() - 1);
+        days = Math.floor((toDate - tempDate) / (1000 * 60 * 60 * 24));
+      }
+
+      return `${months} महीने ${days} दिन (${totalDays} दिन)`;
+    }
+
+    function checkWarranty() {
+      const code = document.getElementById('batteryCode').value.trim();
+      if (code.length < 6) {
+        alert("कृपया सही बैटरी कोड डालें।");
+        return;
+      }
+
+      const day = parseInt(code.substring(0, 2));
+      const month = parseInt(code.substring(2, 4)) - 1; // JS months start from 0
+      const year = parseInt("20" + code.substring(4, 6));
+
+      const manuDate = new Date(year, month, day);
+      const today = new Date();
+
+      // Age calculation
+      const ageStr = calculateAge(manuDate, today);
+
+      // Invoice last date
+      const invoiceLastDate = new Date(manuDate);
+      invoiceLastDate.setMonth(invoiceLastDate.getMonth() + 3);
+
+      // Show results
+      document.getElementById('manuDate').textContent = formatDate(manuDate);
+      document.getElementById('batteryAge').textContent = ageStr;
+      document.getElementById('invoiceLastDate').textContent = formatDate(invoiceLastDate);
+      document.getElementById('outputBox').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
